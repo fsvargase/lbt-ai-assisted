@@ -1,5 +1,13 @@
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { BookingForm } from "@/components/booking/BookingForm";
+
+export const metadata: Metadata = {
+  title: "Request a Booking",
+  description:
+    "Request a luxury chauffeured transfer in New York City — one-way or round-trip, airport, hourly, or point-to-point.",
+  alternates: { canonical: "/new" },
+};
 
 export default async function NewBookingPage() {
   const locations = await prisma.location.findMany({
