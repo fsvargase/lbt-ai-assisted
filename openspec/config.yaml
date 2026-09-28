@@ -1,0 +1,84 @@
+schema: spec-driven
+
+# Project context (shown to AI when creating artifacts)
+context: |
+  ## Project
+  lbt-ai-assisted is a luxury ground-transportation booking platform focused
+  primarily on New York City (USA). It lets clients browse, quote, and book
+  premium chauffeured transport services (airport transfers, hourly hire,
+  point-to-point, events), and lets operators/admins manage vehicles, drivers,
+  pricing, and reservations. It also provides a driver-facing portal where
+  chauffeurs can view and track their assigned trips.
+
+  ## Stack
+  - Monolith built with Next.js (App Router) + TypeScript.
+  - Backend lives inside the same Next.js app via Route Handlers under app/api/.
+  - Node.js runtime for server-side logic and API routes.
+  - Database: PostgreSQL accessed through Prisma ORM.
+  - Auth: NextAuth / Auth.js (session-based, role-aware).
+  - UI: Tailwind CSS + shadcn/ui component library.
+  - Testing: Jest + React Testing Library (unit/component), Playwright (E2E).
+
+  ## Architecture
+  - Entry: app/layout.tsx -> route segments under app/
+  - Pages/routes: app/(marketing), app/(booking), app/(dashboard), app/admin,
+    app/driver (driver portal to view/track assigned trips), etc.
+  - API layer: app/api/**/route.ts (Route Handlers) — server-side booking,
+    quoting, availability, auth, and admin operations.
+  - Data access: Prisma client in a single shared module (e.g. lib/prisma.ts);
+    domain logic in server-only modules under lib/ or server/.
+  - UI: reusable components under components/ (shadcn/ui primitives + composed
+    feature components); shared hooks under hooks/; utilities under lib/.
+  - Auth: NextAuth config in app/api/auth/[...nextauth]/ with role-based access
+    (client, driver, operator/admin). Drivers can only see their own assigned
+    trips.
+
+  ## Key patterns
+  - Server Components by default; Client Components only when interactivity is
+    required ("use client").
+  - Data mutations via Route Handlers and/or Server Actions with Prisma.
+  - Strong typing end-to-end: Prisma-generated types shared across server/client.
+  - Environment/config kept in typed, validated env modules; no secrets in client.
+  - Accessibility required: ARIA labels and keyboard navigation on all
+    interactive elements.
+  - All interactive elements must expose a `data-testid` attribute for tests.
+  - Performance-conscious: leverage Next.js caching, image optimization, and
+    code-splitting; target Lighthouse score > 90.
+
+  ## Domain notes
+  - Core entities: Booking/Reservation, Quote, Vehicle, Driver, Route/Trip,
+    Location (NYC-centric: airports JFK/LGA/EWR, boroughs), Customer, Payment.
+  - Time zones and NYC geography matter for availability and pricing.
+  - Drivers have a dedicated portal to view and track their assigned trips
+    (status updates, pickup/dropoff details, schedule).
+
+  ## Code style
+  - SOLID principles where applicable.
+  - ESLint + Prettier enforced.
+  - Conventional commits (feat/fix/refactor/test/docs/chore).
+  - Prefer TypeScript strictness; avoid `any`.
+  - No CSS-only selectors for tests — always use `data-testid`.
+
+# Per-artifact rules
+rules:
+  proposal:
+    - Reference existing routes in app/ and API handlers in app/api/ affected.
+    - Note Prisma models/migrations impacted and any NextAuth role changes.
+    - Call out NYC domain concerns (locations, airports, time zones, pricing).
+    - Include a "Non-goals" section to keep scope tight.
+  specs:
+    - Use WHEN/THEN/AND scenario format.
+    - Scenarios must be testable (Jest + RTL for components, Playwright for E2E).
+    - Reference specific route segments, components, and API endpoints by name.
+    - Cover both happy path and error/edge cases (invalid quote, no availability).
+  design:
+    - Show component hierarchy and which parts are Server vs Client Components.
+    - Provide TypeScript interface/type definitions for props and API payloads.
+    - Define Prisma schema changes and the Route Handler / Server Action contracts.
+    - State accessibility (ARIA) and `data-testid` requirements.
+  tasks:
+    - Break into atomic chunks completable in one session.
+    - Number tasks as X.Y format.
+    - Include a `data-testid` setup task for new interactive elements.
+    - Always include test coverage (Jest + RTL / Playwright) and lint tasks.
+    - Include any Prisma migration and env-var setup tasks when relevant.

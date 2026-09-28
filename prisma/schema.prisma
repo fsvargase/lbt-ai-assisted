@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  CLIENT
+  DRIVER
+  OPERATOR
+  ADMIN
+}
+
+enum TripType {
+  ONE_WAY
+  ROUND_TRIP
+}
+
+enum TripKind {
+  OUTBOUND
+  RETURN
+}
+
+// Cancellation is intentionally out of scope for booking-core (later change).
+enum BookingStatus {
+  REQUESTED
+  PRICED
+  PARTIALLY_ASSIGNED
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TripStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum LocationKind {
+  AIRPORT
+  BOROUGH
+  LANDMARK
+  ADDRESS
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  role         Role      @default(CLIENT)
+  passwordHash String?
+  customer     Customer?
+  driver       Driver?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Customer {
+  id       String    @id @default(cuid())
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String    @unique
+  phone    String?
+  bookings Booking[]
+}
+
+model Driver {
+  id            String  @id @default(cuid())
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String  @unique
+  phone         String?
+  licenseNumber String?
+  trips         Trip[]
+}
+
+model Vehicle {
+  id           String @id @default(cuid())
+  label        String
+  vehicleClass String
+  plate        String @unique
+  capacity     Int    @default(3)
+  trips        Trip[]
+}
+
+model Location {
+  id             String       @id @default(cuid())
+  name           String
+  kind           LocationKind
+  code           String?      @unique // JFK / LGA / EWR
+  borough        String?
+  createdAt      DateTime     @default(now())
+  outboundTrips  Trip[]       @relation("TripOrigin")
+  inboundTrips   Trip[]       @relation("TripDestination")
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  customerId  String
+  tripType    TripType
+  agreedPrice Decimal?      @db.Decimal(10, 2)
+  status      BookingStatus @default(REQUESTED)
+  trips       Trip[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([customerId])
+}
+
+model Trip {
+  id            String     @id @default(cuid())
+  booking       Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId     String
+  kind          TripKind
+  origin        Location   @relation("TripOrigin", fields: [originId], references: [id])
+  originId      String
+  destination   Location   @relation("TripDestination", fields: [destinationId], references: [id])
+  destinationId String
+  scheduledAt   DateTime // stored in UTC; presented in America/New_York
+  driver        Driver?    @relation(fields: [driverId], references: [id])
+  driverId      String?
+  vehicle       Vehicle?   @relation(fields: [vehicleId], references: [id])
+  vehicleId     String?
+  status        TripStatus @default(PENDING)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([bookingId])
+  @@index([driverId, scheduledAt])
+  @@index([vehicleId, scheduledAt])
+}
