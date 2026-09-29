@@ -10,7 +10,7 @@ const rawUrl =
 
 export const siteConfig: SiteConfig = {
   siteUrl: rawUrl.replace(/\/$/, ""),
-  name: "Luxury Budget Transport",
+  name: "Luxury Budget Transportation",
   description:
     "Premium chauffeured ground transportation across New York City — airport transfers (JFK/LGA/EWR), hourly hire, point-to-point, and events.",
   ogImage: "/og.png",
