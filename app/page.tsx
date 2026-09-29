@@ -4,7 +4,11 @@ import { Role } from "@prisma/client";
 import { getSafeSession } from "@/lib/auth/session";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { localBusinessSchema } from "@/lib/seo/schema";
-import { SERVICES } from "@/lib/seo/services";
+
+import { Hero } from "@/components/marketing/Hero";
+import { ServicesGrid } from "@/components/marketing/ServicesGrid";
+import { FleetShowcase } from "@/components/marketing/FleetShowcase";
+import { ContactSection } from "@/components/marketing/ContactSection";
 
 export const metadata: Metadata = {
   title: "Luxury NYC Ground Transportation & Chauffeur Service",
@@ -13,74 +17,107 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const sections = [
-  { href: "/new", title: "Book a ride", desc: "Request a one-way or round-trip transfer.", testId: "home-book" },
-  { href: "/bookings", title: "My bookings", desc: "View your reservations and prices.", testId: "home-bookings" },
-  { href: "/driver/trips", title: "Driver portal", desc: "See and track your assigned trips.", testId: "home-driver" },
-];
-
 export default async function Home() {
   const session = await getSafeSession();
   const isOperator =
     session?.user?.role === Role.OPERATOR || session?.user?.role === Role.ADMIN;
-
-  const links = isOperator
-    ? [
-        ...sections,
-        {
-          href: "/dashboard/bookings",
-          title: "Operator dashboard",
-          desc: "Price bookings and assign drivers.",
-          testId: "home-operator",
-        },
-      ]
-    : sections;
+  const isDriver = session?.user?.role === Role.DRIVER;
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-6 py-16">
+    <div className="w-full flex flex-col gap-4">
       <JsonLd data={localBusinessSchema()} />
-      <header>
-        <h1 className="text-3xl font-semibold">
-          Luxury Budget Transport — NYC Chauffeur Service
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Premium chauffeured ground transportation across New York City.
-        </p>
-      </header>
 
-      <nav aria-label="Primary" className="grid gap-4 sm:grid-cols-3">
-        {links.map((s) => (
-          <Link
-            key={s.href}
-            href={s.href}
-            data-testid={s.testId}
-            className="rounded-xl border border-gray-200 p-5 transition hover:bg-gray-50"
-          >
-            <h2 className="font-medium">{s.title}</h2>
-            <p className="mt-1 text-sm text-gray-600">{s.desc}</p>
-          </Link>
-        ))}
-      </nav>
+      <Hero />
 
-      <section aria-labelledby="services-heading">
-        <h2 id="services-heading" className="text-xl font-semibold">
-          Our services
-        </h2>
-        <nav aria-label="Services" className="mt-4 grid gap-4 sm:grid-cols-2">
-          {SERVICES.map((s) => (
-            <Link
-              key={s.slug}
-              href={`/services/${s.slug}`}
-              data-testid={`home-service-${s.slug}`}
-              className="rounded-xl border border-gray-200 p-5 transition hover:bg-gray-50"
-            >
-              <h3 className="font-medium">{s.title}</h3>
-              <p className="mt-1 text-sm text-gray-600">{s.short}</p>
-            </Link>
-          ))}
-        </nav>
+      <div className="mx-auto w-full max-w-5xl flex flex-col gap-4">
+        {/* Role-aware / Shortcut Session Banner to preserve original nav testids & routes */}
+        <section className="px-6 pb-8">
+        <div className="mx-auto max-w-md md:max-w-2xl rounded-2xl border border-gray-800 bg-surface/40 p-4 md:p-6 shadow-md backdrop-blur-md">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-accent-gold">
+                Quick Portal Access
+              </p>
+              <h2 className="text-sm text-muted mt-1">
+                {session ? (
+                  <span>
+                    Welcome back, <strong className="text-foreground">{session.user?.name || session.user?.email}</strong>
+                  </span>
+                ) : (
+                  "Access dynamic booking management and driver portals."
+                )}
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link
+                href="/new"
+                data-testid="home-book"
+                className="rounded-lg bg-accent-gold/10 border border-accent-gold/20 px-3 py-2 text-xs font-semibold text-accent-gold hover:bg-accent-gold hover:text-background transition"
+              >
+                Book a ride
+              </Link>
+
+              {session ? (
+                <>
+                  <Link
+                    href="/bookings"
+                    data-testid="home-bookings"
+                    className="rounded-lg bg-gray-950 border border-gray-800 px-3 py-2 text-xs font-semibold text-foreground hover:bg-gray-900 transition"
+                  >
+                    My bookings
+                  </Link>
+
+                  {isDriver && (
+                    <Link
+                      href="/driver/trips"
+                      data-testid="home-driver"
+                      className="rounded-lg bg-gray-950 border border-gray-800 px-3 py-2 text-xs font-semibold text-foreground hover:bg-gray-900 transition"
+                    >
+                      Driver portal
+                    </Link>
+                  )}
+
+                  {isOperator && (
+                    <Link
+                      href="/dashboard/bookings"
+                      data-testid="home-operator"
+                      className="rounded-lg bg-accent-gold/20 border border-accent-gold/40 px-3 py-2 text-xs font-semibold text-accent-gold hover:bg-accent-gold/30 transition"
+                    >
+                      Operator dashboard
+                    </Link>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/bookings"
+                    data-testid="home-bookings"
+                    className="rounded-lg bg-gray-950 border border-gray-800 px-3 py-2 text-xs font-semibold text-foreground hover:bg-gray-900 transition"
+                  >
+                    My bookings
+                  </Link>
+                  <Link
+                    href="/driver/trips"
+                    data-testid="home-driver"
+                    className="rounded-lg bg-gray-950 border border-gray-800 px-3 py-2 text-xs font-semibold text-foreground hover:bg-gray-900 transition"
+                  >
+                    Driver portal
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </section>
-    </main>
+
+      <ServicesGrid />
+
+      <FleetShowcase />
+
+      <ContactSection />
+    </div>
+  </div>
   );
 }
 

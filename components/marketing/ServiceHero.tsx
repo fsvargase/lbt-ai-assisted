@@ -15,16 +15,13 @@ export function ServiceHero({ service }: { service: ServiceDef }) {
           url,
         })}
       />
-      <h1 className="text-4xl font-semibold tracking-tight">{service.title}</h1>
-      <p className="mt-2 text-lg text-gray-600">{service.short} in New York City</p>
+      <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">{service.title}</h1>
+      <p className="mt-2 text-lg text-accent-gold font-medium tracking-wide">{service.short} in New York City</p>
 
-      <div className="mt-8 space-y-4 text-gray-700">
+      <div className="mt-8 space-y-6 text-muted text-base leading-relaxed">
         <p>{service.description}</p>
         <p>
-          Every ride is handled by a professional chauffeur in a premium vehicle,
-          with New York City service areas including Manhattan, Brooklyn, Queens,
-          the Bronx, and Staten Island, plus the JFK, LaGuardia, and Newark
-          airports.
+          Every ride is handled by an NYC-certified professional chauffeur in a premium vehicle. Our service coverage covers all 5 boroughs (Manhattan, Brooklyn, Queens, the Bronx, Staten Island) and airports (JFK, LaGuardia LGA, Newark Liberty EWR) to deliver maximum elegance, safety, and comfort.
         </p>
       </div>
 
