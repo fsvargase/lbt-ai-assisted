@@ -31,7 +31,7 @@ export function SiteHeader({ user }: SiteHeaderProps) {
           aria-label="Luxury Budget Transportation"
         >
           <Image
-            src="/logo_lbt_header.png"
+            src="/logo_web.png"
             alt="Luxury Budget Transportation"
             width={48}
             height={48}
