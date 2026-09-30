@@ -33,7 +33,7 @@ describe("Home Page Server Component", () => {
     expect(screen.getByTestId("fleet-reserve-cadillac-escalade")).toBeInTheDocument();
 
     // Contact info
-    expect(screen.getByText("John F. Kennedy International Airport", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("JFK International", { exact: false })).toBeInTheDocument();
 
     // Not logged in: does NOT display operator dashboard link
     expect(screen.queryByTestId("home-operator")).not.toBeInTheDocument();
