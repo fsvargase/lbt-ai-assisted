@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Hero() {
   return (
@@ -26,20 +27,61 @@ export function Hero() {
       {/* Centered card container with bright video and clean transparent text block */}
       <div className="relative z-20 w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center">
         <div className="flex flex-col items-center justify-center">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl text-foreground font-sans leading-tight max-w-3xl mx-auto">
-            Luxury Budget Transportation — NYC Premium Chauffeur Service
+          <h1 className="flex justify-center select-none pointer-events-none">
+            <span className="sr-only">
+              Luxury Budget Transportation — NYC Premium Chauffeur Service
+            </span>
+            <Image
+              src="/logo_lbt.png"
+              alt="Luxury Budget Transportation — NYC Premium Chauffeur Service"
+              width={800}
+              height={240}
+              priority
+              className="h-auto w-full max-w-[450px] sm:max-w-[600px] md:max-w-[750px] lg:max-w-[900px] object-contain"
+            />
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-muted max-w-xl mx-auto leading-relaxed">
-            Experience unparalleled luxury ground transportation at a price that fits your budget.
-          </p>
-          <div className="mt-10 flex justify-center">
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/new"
               data-testid="hero-cta-book"
-              className="inline-flex h-12 items-center justify-center rounded-full bg-accent-gold px-8 text-sm font-semibold uppercase tracking-wider text-background shadow-lg shadow-accent-gold/20 hover:bg-accent-gold/90 transition-all hover:scale-105 active:scale-95 mx-auto"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full bg-accent-gold px-8 text-sm font-semibold uppercase tracking-wider text-background shadow-lg shadow-accent-gold/20 hover:bg-accent-gold/90 transition-all hover:scale-105 active:scale-95"
             >
+              <svg
+                className="mr-2 h-4 w-4 shrink-0 transition-transform duration-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
               Book Now
             </Link>
+            <a
+              href="https://www.instagram.com/luxurybudgettransport/"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="hero-cta-instagram"
+              aria-label="Follow us at Instagram"
+              className="inline-flex h-12 w-full sm:w-auto items-center justify-center rounded-full bg-transparent px-8 text-sm font-semibold uppercase tracking-wider text-accent-gold hover:bg-accent-gold/10 transition-all hover:scale-105 active:scale-95"
+            >
+              <svg
+                className="mr-2 h-4 w-4 shrink-0 transition-transform duration-300"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                viewBox="0 0 24 24"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+              </svg>
+              Follow Us At Instagram
+            </a>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MobileMenu } from "./MobileMenu"; // Import client-side mobile menu
 
 interface SiteHeaderProps {
@@ -22,13 +23,21 @@ export function SiteHeader({ user }: SiteHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-800 bg-background/95 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
-        {/* Brand Mark */}
+        {/* Brand Mark Logo Image for visual compliance with the live portal */}
         <Link
           href="/"
           data-testid="nav-link-home"
-          className="text-lg font-semibold tracking-wide text-foreground transition hover:text-accent-gold"
+          className="flex items-center gap-2 text-lg font-semibold tracking-wide text-foreground transition hover:text-accent-gold"
+          aria-label="Luxury Budget Transportation"
         >
-          Luxury Budget Transportation
+          <Image
+            src="/logo_lbt_header.png"
+            alt="Luxury Budget Transportation"
+            width={48}
+            height={48}
+            priority
+            className="h-12 w-auto object-contain"
+          />
         </Link>
 
         {/* Desktop inline links */}
