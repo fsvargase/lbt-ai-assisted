@@ -10,7 +10,31 @@ test("client booking form renders", async ({ page }) => {
   await expect(page.getByTestId("origin-select")).toBeVisible();
   await expect(page.getByTestId("destination-select")).toBeVisible();
   await expect(page.getByTestId("outbound-datetime")).toBeVisible();
+  await expect(page.getByTestId("contact-email")).toBeVisible();
+  await expect(page.getByTestId("contact-phone")).toBeVisible();
   await expect(page.getByTestId("booking-submit")).toBeVisible();
+});
+
+/**
+ * Guest (unauthenticated) booking submission via the public form.
+ * Requires RECAPTCHA_BYPASS="true" in the app environment for local/e2e runs.
+ */
+test("guest can submit a booking without signing in", async ({ page }) => {
+  const d = new Date();
+  d.setDate(d.getDate() + 45);
+  const outbound = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+    d.getDate(),
+  ).padStart(2, "0")}T09:00`;
+
+  await page.goto("/new");
+  await page.getByTestId("origin-select").selectOption({ index: 1 });
+  await page.getByTestId("destination-select").selectOption({ index: 2 });
+  await page.getByTestId("outbound-datetime").fill(outbound);
+  await page.getByTestId("contact-email").fill("guest@example.com");
+  await page.getByTestId("contact-phone").fill("212-555-0199");
+  await page.getByTestId("booking-submit").click();
+  await page.waitForURL("**/bookings/**");
+  expect(page.url()).toContain("/bookings/");
 });
 
 /**
@@ -21,6 +45,8 @@ test("client booking form renders", async ({ page }) => {
  * own browser context so sessions do not collide.
  */
 test("round-trip booking end-to-end across roles", async ({ browser }) => {
+  // Heavy multi-context flow (client + operator + two drivers); allow extra time.
+  test.slow();
   // Unique future dates per run so re-runs don't collide with prior assignments
   // (the availability check rejects a driver already booked at an overlapping time).
   const dayOffset = 30 + Math.floor(Math.random() * 3000);
@@ -45,6 +71,8 @@ test("round-trip booking end-to-end across roles", async ({ browser }) => {
   await client.getByTestId("destination-select").selectOption({ index: 2 });
   await client.getByTestId("outbound-datetime").fill(outboundAt);
   await client.getByTestId("return-datetime").fill(returnAt);
+  await client.getByTestId("contact-email").fill("client@example.com");
+  await client.getByTestId("contact-phone").fill("212-555-0100");
   await client.getByTestId("booking-submit").click();
   await client.waitForURL("**/bookings/**");
   const bookingId = client.url().split("/bookings/")[1];

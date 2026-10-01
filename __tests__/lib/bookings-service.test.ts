@@ -30,6 +30,9 @@ describe("createBooking", () => {
     originId: "loc-a",
     destinationId: "loc-b",
     outboundAt: "2026-01-15T13:00:00.000Z",
+    contactEmail: "rider@example.com",
+    contactPhone: "+12125550123",
+    recaptchaToken: "token-123",
   };
 
   it("creates a single trip for a one-way booking", async () => {

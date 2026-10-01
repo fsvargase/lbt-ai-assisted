@@ -14,7 +14,7 @@ const bookingInclude = {
 } satisfies Prisma.BookingInclude;
 
 export async function createBooking(
-  customerId: string,
+  customerId: string | null,
   input: CreateBookingInput,
 ) {
   const outboundAt = new Date(input.outboundAt);
@@ -42,9 +42,11 @@ export async function createBooking(
 
   return prisma.booking.create({
     data: {
-      customer: { connect: { id: customerId } },
+      ...(customerId ? { customer: { connect: { id: customerId } } } : {}),
       tripType: input.tripType,
       status: BookingStatus.REQUESTED,
+      contactEmail: input.contactEmail,
+      contactPhone: input.contactPhone,
       trips: { create: trips },
     },
     include: bookingInclude,

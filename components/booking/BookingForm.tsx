@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { nyLocalToIso } from "@/lib/datetime";
+import { isValidUsPhone } from "@/lib/phone";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 import { TripTypeToggle } from "./TripTypeToggle";
 import { LocationSelect } from "./LocationSelect";
 import { DateTimePicker } from "./DateTimePicker";
@@ -12,19 +14,28 @@ interface BookingFormProps {
   locations: LocationOption[];
 }
 
+const EMAIL_RE = /\S+@\S+\.\S+/;
+
 export function BookingForm({ locations }: BookingFormProps) {
   const router = useRouter();
+  const { execute } = useRecaptcha();
   const [tripType, setTripType] = useState<TripTypeValue>("ONE_WAY");
   const [originId, setOriginId] = useState("");
   const [destinationId, setDestinationId] = useState("");
   const [outboundLocal, setOutboundLocal] = useState("");
   const [returnLocal, setReturnLocal] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setEmailError(null);
+    setPhoneError(null);
 
     if (!originId || !destinationId || !outboundLocal) {
       setError("Please choose origin, destination, and outbound time.");
@@ -39,18 +50,33 @@ export function BookingForm({ locations }: BookingFormProps) {
       return;
     }
 
-    const payload = {
-      tripType,
-      originId,
-      destinationId,
-      outboundAt: nyLocalToIso(outboundLocal),
-      ...(tripType === "ROUND_TRIP"
-        ? { returnAt: nyLocalToIso(returnLocal) }
-        : {}),
-    };
+    let hasContactError = false;
+    if (!EMAIL_RE.test(contactEmail)) {
+      setEmailError("Please enter a valid email address.");
+      hasContactError = true;
+    }
+    if (!isValidUsPhone(contactPhone)) {
+      setPhoneError("Please enter a valid US phone number.");
+      hasContactError = true;
+    }
+    if (hasContactError) return;
 
     setSubmitting(true);
     try {
+      const recaptchaToken = await execute("booking");
+      const payload = {
+        tripType,
+        originId,
+        destinationId,
+        outboundAt: nyLocalToIso(outboundLocal),
+        contactEmail,
+        contactPhone,
+        recaptchaToken: recaptchaToken ?? "",
+        ...(tripType === "ROUND_TRIP"
+          ? { returnAt: nyLocalToIso(returnLocal) }
+          : {}),
+      };
+
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -77,6 +103,7 @@ export function BookingForm({ locations }: BookingFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate
       data-testid="booking-form"
       aria-label="Create a booking"
       className="flex max-w-xl flex-col gap-5"
@@ -117,6 +144,70 @@ export function BookingForm({ locations }: BookingFormProps) {
           onChange={setReturnLocal}
         />
       )}
+
+      <div className="flex flex-col gap-1">
+        <label
+          htmlFor="contact-email"
+          className="text-xs font-semibold text-muted uppercase tracking-wider"
+        >
+          Contact email
+        </label>
+        <input
+          id="contact-email"
+          name="contactEmail"
+          type="email"
+          autoComplete="email"
+          data-testid="contact-email"
+          value={contactEmail}
+          onChange={(e) => setContactEmail(e.target.value)}
+          aria-invalid={Boolean(emailError)}
+          aria-describedby={emailError ? "contact-email-error" : undefined}
+          className="rounded-md border border-gray-700 bg-background px-3 py-2 text-sm text-foreground"
+        />
+        {emailError && (
+          <p
+            id="contact-email-error"
+            role="alert"
+            data-testid="contact-email-error"
+            className="text-sm text-red-600"
+          >
+            {emailError}
+          </p>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label
+          htmlFor="contact-phone"
+          className="text-xs font-semibold text-muted uppercase tracking-wider"
+        >
+          Contact phone (US)
+        </label>
+        <input
+          id="contact-phone"
+          name="contactPhone"
+          type="tel"
+          autoComplete="tel"
+          inputMode="tel"
+          placeholder="+1 212 555 0123"
+          data-testid="contact-phone"
+          value={contactPhone}
+          onChange={(e) => setContactPhone(e.target.value)}
+          aria-invalid={Boolean(phoneError)}
+          aria-describedby={phoneError ? "contact-phone-error" : undefined}
+          className="rounded-md border border-gray-700 bg-background px-3 py-2 text-sm text-foreground"
+        />
+        {phoneError && (
+          <p
+            id="contact-phone-error"
+            role="alert"
+            data-testid="contact-phone-error"
+            className="text-sm text-red-600"
+          >
+            {phoneError}
+          </p>
+        )}
+      </div>
 
       {error && (
         <p role="alert" data-testid="booking-error" className="text-sm text-red-600">

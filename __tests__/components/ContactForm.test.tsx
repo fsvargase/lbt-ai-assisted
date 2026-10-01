@@ -1,6 +1,11 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { ContactForm } from "@/components/marketing/ContactForm";
 
+const execute = jest.fn().mockResolvedValue("test-token");
+jest.mock("@/hooks/useRecaptcha", () => ({
+  useRecaptcha: () => ({ execute }),
+}));
+
 describe("ContactForm Component", () => {
   it("renders all form elements with their respective accessible names and labels", () => {
     render(<ContactForm />);
@@ -42,5 +47,6 @@ describe("ContactForm Component", () => {
       expect(screen.getByTestId("contact-success")).toBeInTheDocument();
       expect(screen.getByText("Message Sent")).toBeInTheDocument();
     });
+    expect(execute).toHaveBeenCalledWith("contact");
   });
 });
