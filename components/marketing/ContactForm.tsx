@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 
 export function ContactForm() {
+  const { execute } = useRecaptcha();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,7 +26,7 @@ export function ContactForm() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: Record<string, string> = {};
 
@@ -44,6 +46,9 @@ export function ContactForm() {
       setValidationErrors(errors);
       return;
     }
+
+    // reCAPTCHA v3 token obtained before completing submission.
+    await execute("contact");
 
     // Success state representation (client-only as per non-goals)
     setSuccess(true);

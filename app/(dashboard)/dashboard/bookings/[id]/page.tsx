@@ -58,7 +58,7 @@ export default async function OperatorBookingPage({ params }: Props) {
   return (
     <main className="mx-auto w-full max-w-3xl px-6 py-10">
       <h1 className="text-2xl font-semibold">
-        Booking · {booking.customer.user.name ?? booking.customer.user.email}
+        Booking · {booking.customer?.user.name ?? booking.customer?.user.email ?? booking.contactEmail}
       </h1>
       <p className="mt-1 text-sm text-gray-500">
         Status: <span data-testid="operator-booking-status">{booking.status}</span>

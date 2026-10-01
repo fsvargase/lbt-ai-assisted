@@ -99,15 +99,17 @@ model Location {
 }
 
 model Booking {
-  id          String        @id @default(cuid())
-  customer    Customer      @relation(fields: [customerId], references: [id])
-  customerId  String
-  tripType    TripType
-  agreedPrice Decimal?      @db.Decimal(10, 2)
-  status      BookingStatus @default(REQUESTED)
-  trips       Trip[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  customer     Customer?     @relation(fields: [customerId], references: [id])
+  customerId   String?
+  tripType     TripType
+  contactEmail String
+  contactPhone String // normalized US/E.164, e.g. +12125550123
+  agreedPrice  Decimal?      @db.Decimal(10, 2)
+  status       BookingStatus @default(REQUESTED)
+  trips        Trip[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   @@index([customerId])
 }

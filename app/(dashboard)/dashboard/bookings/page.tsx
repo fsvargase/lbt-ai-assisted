@@ -47,7 +47,7 @@ export default async function OperatorBookingsPage() {
               >
                 <div className="flex items-center justify-between">
                   <span className="font-medium">
-                    {b.customer.user.name ?? b.customer.user.email}
+                    {b.customer?.user.name ?? b.customer?.user.email ?? b.contactEmail}
                   </span>
                   <span className="text-xs uppercase tracking-wide text-gray-500">
                     {b.status}
